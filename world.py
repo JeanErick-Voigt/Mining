@@ -1,4 +1,4 @@
-#!/usr/local/bin/python
+#!/usr/bin/env python3
 
 import timeout, os, time
 from map import Map
@@ -13,7 +13,7 @@ try:
 except:
     pass # Any problem and the refresh delay will remain at 0
 
-c = Overlord(TICKS)
+c = Overlord(ticks=TICKS, refined_minerals=54)
 
 maps = dict()
 for n in range(3):
