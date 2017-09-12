@@ -36,8 +36,8 @@ for _ in range(TICKS):
     act = 'NONE'
     try:
         with timeout.within(1000):
-            act = c.action()
-    except timeout.TimeoutException:
+            act = c.action(None)
+    except timeout.TimeoutError:
         pass
 
     print(act)
