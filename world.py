@@ -3,7 +3,7 @@
 import timeout, os, time
 from map import Map
 from sys import argv
-import zerg
+from mining import Overlord
 
 TICKS = 100
 refresh_delay = 0.0 # number should represent seconds
@@ -13,7 +13,7 @@ try:
 except:
     pass # Any problem and the refresh delay will remain at 0
 
-c = zerg.Overlord(TICKS)
+c = Overlord(TICKS)
 
 maps = dict()
 for n in range(3):

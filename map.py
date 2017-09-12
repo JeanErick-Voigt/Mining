@@ -213,7 +213,7 @@ class Map:
                     self.update_location_adjacent(z.location)
                     self.move_to(z.location, d)
 
-            except timeout.TimeoutException:
+            except timeout.TimeoutError:
                 print(45 * "*", "TIMEOUT OCCURRED") #pass
 
 
