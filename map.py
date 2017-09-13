@@ -1,6 +1,7 @@
 #!/usr/local/bin/python
 
-from random import randint
+from random import seed, randint
+from sys import argv
 import timeout
 
 class Location:
@@ -229,3 +230,9 @@ class DroneContext:
 #TODO: This should be maintained independent of whichever map they are on
         self.hp = hp
         self.mineral = 0
+
+if __name__ == '__main__':
+    if len(argv) == 4:
+        seed(argv[3])
+    if len(argv) >= 3:
+        print(Map(int(argv[1]), int(argv[2])))
