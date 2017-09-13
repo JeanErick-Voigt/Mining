@@ -33,6 +33,7 @@ print(zerg_locations)
 mined = 0
 
 for _ in range(TICKS):
+    os.system('cls' if os.name == 'nt' else 'clear')
     act = 'NONE'
     try:
         with timeout.within(1000):
@@ -67,6 +68,5 @@ for _ in range(TICKS):
         maps[n].tick()
         print(maps[n])
     time.sleep(refresh_delay)
-    os.system('cls' if os.name == 'nt' else 'clear')
 
 print(mined)
