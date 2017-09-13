@@ -4,8 +4,9 @@ import timeout, os, time
 from map import Map
 from sys import argv
 from mining import Overlord
+#import zerg
 
-TICKS = 100
+TICKS = 50
 refresh_delay = 0.0 # number should represent seconds
 try:
     if len(argv) > 1 and argv[1].startswith("-refresh"):
@@ -13,7 +14,7 @@ try:
 except:
     pass # Any problem and the refresh delay will remain at 0
 
-c = Overlord(ticks=TICKS, refined_minerals=54)
+overlord = Overlord(ticks=TICKS, refined_minerals=54)
 
 maps = dict()
 for n in range(3):
@@ -21,10 +22,10 @@ for n in range(3):
     if n+1 < len(argv):
         maps[n].load_from_file(argv[n+1])
 
-    c.add_map(n, maps[n].summary())
+    overlord.add_map(n, maps[n].summary())
 
-zerg_locations = { n: None for n in c.zerg }
-zerg_health = { zerg_id: the_zerg.health for zerg_id, the_zerg in c.zerg.items() }
+zerg_locations = { n: None for n in overlord.zerg }
+zerg_health = { zerg_id: the_zerg.health for zerg_id, the_zerg in overlord.zerg.items() }
 
 
 
@@ -37,7 +38,7 @@ for _ in range(TICKS):
     act = 'NONE'
     try:
         with timeout.within(1000):
-            act = c.action(None)
+            act = overlord.action(None)
     except timeout.TimeoutError:
         pass
 
@@ -48,7 +49,7 @@ for _ in range(TICKS):
         map_id = int(map_id)
 
         if zerg_locations[z_id] is None:
-            if maps[map_id].add_zerg(c.zerg[z_id], zerg_health[z_id]):
+            if maps[map_id].add_zerg(overlord.zerg[z_id], zerg_health[z_id]):
                 zerg_locations[z_id] = map_id
 
     elif act.startswith('RETURN'):
@@ -69,4 +70,4 @@ for _ in range(TICKS):
         print(maps[n])
     time.sleep(refresh_delay)
 
-print(mined)
+print("Total mined:", mined)
