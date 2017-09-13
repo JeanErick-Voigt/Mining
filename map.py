@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from random import seed, randint
+from random import randint
 from sys import argv
 import timeout
 
@@ -11,6 +11,9 @@ class Location:
 
 class Map:
     def __init__(self, x, y):
+        """ Instantiates a map with dimensions x, y and populates it with
+            a landing zone, minerals, acis and such
+        """
         self.__x = x
         self.__y = y
         top_bottom_row = [ '#' for _ in range(x) ]
@@ -26,51 +29,47 @@ class Map:
         for n in range(1,10):
             self.add_mineral(n)
 
-        c = 0,0
-        while self[c] != ' ':
-            c = randint(1, self.__x - 2), randint(1, self.__y - 2)
-        self[c] = '_'
-        self.landing_zone = c
+        coordinates = (0,0)
+        while self[coordinates] != ' ':
+            coordinates = randint(1, self.__x - 2), randint(1, self.__y - 2)
+        self[coordinates] = '_'
+        self.landing_zone = coordinates
 
         self.acid = []
         for _ in range(x * y // 15):
-            c = 0,0
-            while self[c] != ' ':
-                c = randint(1, self.__x - 2), randint(1, self.__y - 2)
-            self[c] = '~'
-            self.acid.append(c)
+            coordinates = (0,0)
+            while self[coordinates] != ' ':
+                coordinates = randint(1, self.__x - 2), randint(1, self.__y - 2)
+            self[coordinates] = '~'
+            self.acid.append(coordinates)
 
         self.zerg = []
-
-    def print_map(self):
-        temp_map = self.data[:]
-        for mineral in self.mineral:
-            temp_map[mineral.location.y][mineral.location.x] = str(mineral.amt)
-        print('\n'.join([''.join(i) for i in reversed(temp_map)]))
 
     def load_from_file(self, filename):
         data = []
         self.mineral = []
         self.acid = []
+
+
 # TODO: This could do a much better job of building the summary, by
 #       only considering reachable tiles
         with open(filename) as fh:
-            for i, line in enumerate(fh):
-                d = [c for c in line.rstrip()]
-                for j, c in enumerate(d):
-                    if c == '~':
-                        self.acid.append((j, i))
-                    elif c == '_':
-                        self.landing_zone = (j, i)
-                    elif c in '0123456789':
-                        d[j] = '*'
-                        ctx = MineralContext(Location(j, i), int(c))
+            for row, line in enumerate(fh):
+                d = [char for char in line.rstrip()]
+                for column, char in enumerate(d):
+                    if char == '~':
+                        self.acid.append((column, row))
+                    elif char == '_':
+                        self.landing_zone = (column, row)
+                    elif char in '0123456789':
+                        d[column] = '*'
+                        ctx = MineralContext(Location(column, row), int(char))
                         self.mineral.append(ctx)
 
                 data.append(d)
 
-        self.__x = j
-        self.__y = i
+        self.__x = column
+        self.__y = row
         self.data = data
 
     def summary(self):
@@ -169,13 +168,14 @@ class Map:
             pass
         elif self[new_l] == '#':
             z = self.find_zergcontext_at( (l.x, l.y) )
-            z.hp -= 1
+            z.zerg.health -= 1
         elif self[new_l] == '*':
             m = self.find_mineralcontext_at( new_l )
             if m.amt > 0:
                 m.amt -= 1
                 z = self.find_zergcontext_at( (l.x, l.y) )
                 z.mineral += 1
+
                 if m.amt <= 0:
                     self[m.location.x, m.location.y] = ' '
                     self.update_tile(m.location.x, m.location.y)
@@ -193,18 +193,7 @@ class Map:
     def tick(self):
 # This may be duplicate and unecessary now tha the act of mining
 # could remove the minerals.
-        for m in self.mineral:
-            if m.amt <= 0:
-                self[m.location.x, m.location.y] = ' '
-                self.update_tile(m.location.x, m.location.y)
-                self.mineral.remove(m)
-        for z in self.zerg:
-            if (z.location.x, z.location.y) in self.acid:
-                z.hp -= 3
-            if z.hp <= 0:
-                self[z.location.x, z.location.y] = ' '
-                self.update_tile(z.location.x, z.location.y)
-                self.zerg.remove(z)
+
         for z in self.zerg: 
 
             d = 'CENTER'
@@ -213,15 +202,44 @@ class Map:
                 for _ in range(z.zerg.moves):
                     self.update_location_adjacent(z.location)
                     pos = z.location.x, z.location.y
+
+
+                    for m in self.mineral:
+                        if m.amt <= 0:
+                            self[m.location.x, m.location.y] = ' '
+                            self.update_tile(m.location.x, m.location.y)
+                            self.mineral.remove(m)
+
+                    if (z.location.x, z.location.y) in self.acid:
+                        z.zerg.health -= 3 # Mulitple moves within a tick - necessary to account for here
+                    if z.zerg.health <= 0:
+                        self[z.location.x, z.location.y] = ' '
+                        self.update_tile(z.location.x, z.location.y)
+                        if z in self.zerg:
+                            self.zerg.remove(z)
+                    
+
+
                     with timeout.within(1/z.zerg.moves):
                         d = z.zerg.action(z.location)
 # Reset location position so that the zerg cannot track or abuse it
                     z.location = Location(pos[0], pos[1])
                     self.update_location_adjacent(z.location)
-                    self.move_to(z.location, d)
+                    if z in self.zerg:
+                        self.move_to(z.location, d)
+
+
+                    if z.zerg.health <= 0:
+                        break #zerg is dead move on to next
 
             except timeout.TimeoutError:
                 print(45 * "*", "TIMEOUT OCCURRED") #pass
+
+    def print_map(self):
+        temp_map = self.data[:]
+        for mineral in self.mineral:
+            temp_map[mineral.location.y][mineral.location.x] = str(mineral.amt)
+        print('\n'.join([''.join(i) for i in reversed(temp_map)]))
 
 
 class MineralContext:
