@@ -1,4 +1,4 @@
-#!/usr/local/bin/python
+#!/usr/bin/env python3
 
 from random import seed, randint
 from sys import argv
@@ -41,6 +41,12 @@ class Map:
             self.acid.append(c)
 
         self.zerg = []
+
+    def print_map(self):
+        temp_map = self.data[:]
+        for mineral in self.mineral:
+            temp_map[mineral.location.y][mineral.location.x] = str(mineral.amt)
+        print('\n'.join([''.join(i) for i in reversed(temp_map)]))
 
     def load_from_file(self, filename):
         data = []
@@ -235,4 +241,4 @@ if __name__ == '__main__':
     if len(argv) == 4:
         seed(argv[3])
     if len(argv) >= 3:
-        print(Map(int(argv[1]), int(argv[2])))
+        Map(int(argv[1]), int(argv[2])).print_map()
