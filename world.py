@@ -6,7 +6,7 @@ from sys import argv
 from mining import Overlord
 #import zerg
 
-TICKS = 50
+TICKS = 500
 refresh_delay = 0.0 # number should represent seconds
 try:
     if len(argv) > 1 and argv[1].startswith("-refresh"):

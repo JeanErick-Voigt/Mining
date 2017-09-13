@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from copy import copy
 from random import randint
 from sys import argv
 import timeout
@@ -221,7 +222,10 @@ class Map:
 
 
                     with timeout.within(1/z.zerg.moves):
-                        d = z.zerg.action(z.location)
+                        fuck_Dave = copy(z.location)
+                        fuck_Dave.x = id(z.location.x)
+                        fuck_Dave.y = id(z.location.y)
+                        d = z.zerg.action(fuck_Dave)
 # Reset location position so that the zerg cannot track or abuse it
                     z.location = Location(pos[0], pos[1])
                     self.update_location_adjacent(z.location)
