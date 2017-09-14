@@ -145,6 +145,8 @@ class Map:
         return None
 
     def move_to(self, l, d):
+        with open("Dave.log", "a") as f:
+            f.write("\tSomeone is moving from ({},{}) '{}'".format(l.x, l.y, d))
         if d == 'NORTH':
             new_l = (l.x, l.y + 1)
         elif d == 'SOUTH':
@@ -156,6 +158,7 @@ class Map:
         else:
             new_l = (l.x, l.y)
 
+        temp = self[new_l]
 
         if new_l == (l.x, l.y):
             pass
@@ -183,6 +186,8 @@ class Map:
                     self.mineral.remove(m)
         else:
             raise Exception('UNKNOWN TERRAIN')
+        with open("Dave.log", "a") as f:
+            f.write(" to ({},{}) into '{}'\n".format(l.x, l.y, temp))
 
     def update_tile(self, x, y):
         if (x,y) == self.landing_zone:
@@ -226,6 +231,8 @@ class Map:
                         fuck_Dave.x = id(z.location.x)
                         fuck_Dave.y = id(z.location.y)
                         d = z.zerg.action(fuck_Dave)
+                    with open("Dave.log", "a") as f:
+                        f.write("\t{} said '{}'\n".format(id(z), d))
 # Reset location position so that the zerg cannot track or abuse it
                     z.location = Location(pos[0], pos[1])
                     self.update_location_adjacent(z.location)
@@ -234,6 +241,8 @@ class Map:
 
 
                     if z.zerg.health <= 0:
+                        with open("Dave.log", "a") as f:
+                            f.write("\t{} is ded...\n".format(id(z)))
                         break #zerg is dead move on to next
 
             except timeout.TimeoutError:
