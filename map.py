@@ -246,6 +246,8 @@ class Map:
                         break #zerg is dead move on to next
 
             except timeout.TimeoutError:
+                with open("Dave.log", "a") as f:
+                    f.write("\tZerg TIMEDOUT!\n")
                 print(45 * "*", "TIMEOUT OCCURRED") #pass
 
     def print_map(self):

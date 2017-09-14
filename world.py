@@ -6,7 +6,7 @@ from sys import argv
 from mining import Overlord
 #import zerg
 
-TICKS = 50
+TICKS = 100
 refresh_delay = 0.0 # number should represent seconds
 try:
     if len(argv) > 1 and argv[1].startswith("-refresh"):
@@ -40,6 +40,8 @@ for i in reversed(range(TICKS)):
         with timeout.within(1000):
             act = overlord.action(None)
     except timeout.TimeoutError:
+        with open("Dave.log", "a") as f:
+            f.write("{}: Overloard TIMEDOUT!\n".format(i))
         pass
     with open("Dave.log", "a") as f:
         f.write("{}: Overloard said '{}'\n".format(i, act))
