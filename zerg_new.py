@@ -2,8 +2,19 @@
 
 from random import randint, choice
 
-class Drone:
+
+class Map:
     def __init__(self, overlord):
+        self.overlord = overlord
+        self.current_map = {}
+        self.map_movement = {}
+        self.map_terrain = {}
+        self.map_symbols = {}
+
+class Drone:
+    def __init__(self, overlord, map_object):
+ 
+        self.map_object = map_object
         self.overlord = overlord
         self.health = 25
         self.moves = (1)
@@ -20,61 +31,40 @@ class Drone:
     def action(self, context):
         self.move += 1
         new = randint(0, 3)
-        #row = []
-        #li = []
-        print("This is length of list of tupes --> ", len(self.list_of_tupes))
-       # print("This is map_id", Overlord.maps)
         x = context.x
         y = context.y
+        print("This is overlord map option -------------------> ", self.overlord.option)
+        print("This is map object -------------------------------> ", self.overlord.map_object.map_terrain.items())
         self.list_of_tupes.append(tuple([x, y]))
+        print("Zerg id {} on map {} ".format(self.overlord.zerg_id, self.overlord.zerg_to_map[self.overlord.zerg_id]))
+        print("This is zerg to map current ", self.overlord.zerg_to_map.items())
+        zerg_map_location = self.overlord.zerg_to_map[self.overlord.zerg_id]
+        self.overlord.map_object.map_terrain[zerg_map_location].append(tuple([x,y])) 
+        #if self.overlord.option in 
+        self.overlord.map_object.map_symbols[zerg_map_location] = self.my_map
+        print("This is fulll map ------------------------------------------------------------------> ")
+        print(self.overlord.map_object.map_symbols[zerg_map_location].items())
+        print(self.overlord.map_object.map_symbols.items())
+        print("----------------------------------------------------------------------------------------$")
 
         #self.my_map[self.list
 	#if self.moves < 2:
 	#	self.my_map[self.list_tuples
         #self.my_map[self.list_of_tupes] = cont
+        '''
         for key in self.overlord.maps:
             print("This is map id ") 
             print(key)
+        '''
         print("This is list of tupes ---> ")
         print(self.list_of_tupes)
         print(id(self))
-        print("First element in list of tupes ---> ", self.list_of_tupes[0])
+        #print("First element in list of tupes ---> ", self.list_of_tupes[0])
        # print("X coordinate of first element ", type(self.list_of_tupes[0][0]))
-        print("Last element in list of tupes ---> ", self.list_of_tupes[-1])
-        print("Last y in last element ", self.list_of_tupes[-1][1])
+        #print("Last element in list of tupes ---> ", self.list_of_tupes[-1])
+        #print("Last y in last element ", self.list_of_tupes[-1][1])
         #print("This is len of self.list ", len(self.list_of_tupes))
-        '''      
-           if(len(self.list_of_tupes) < 2):
-       	   # print("DEBUG DEBUG")
-            self.my_map[self.list_of_tupes[0]] = "_"
-            self.min_x = int(self.list_of_tupes[0][0])
-            self.max_x = int(self.list_of_tupes[0][0])
-            self.min_y = int(self.list_of_tupes[0][1])
-            self.max_y = int(self.list_of_tupes[0][1])
-            
-
-        else:
-            #if tuple(self.list_of_tupes[-1]) in self.my_map:
-            north = context.x + 1
-            x = context.x
-            y = context.y
-            south = context.x - 1
-            self.my_map[(north, y)] = context.north
-            self.my_map[(south, y)] = context.south
-            east = context.y + 1
-            west = context.y - 1
-            self.my_map[(x, east)] = context.east
-            self.my_map[(x, west)] = context.west
-            print("this is y value from tuple --------------------------------> ", int(self.list_of_tupes[-1][1]))
-            if int(self.list_of_tupes[-1][0]) > self.max_x:
-                self.max_x = int(self.list_of_tupes[-1][0])
-            if int(self.list_of_tupes[-1][0]) < self.min_x:
-                self.min_x = int(self.list_of_tupes[-1][0])
-            if int(self.list_of_tupes[-1][1]) > self.max_y:
-                self.max_y = int(self.list_of_tupes[-1][1])
-            if int(self.list_of_tupes[-1][1]) < self.min_y:
-                self.min_y = int(self.list_of_tupes[-1][1])
-'''
+        
         print("First value ", self.list_of_tupes[0])
         self.min_x = min(self.list_of_tupes)[0]
         self.max_x = max(self.list_of_tupes)[0]
@@ -94,20 +84,23 @@ class Drone:
         self.my_map[(east, y)] = context.east
         self.my_map[(west, y)] = context.west
 
-        print("These are min and max values")
-        print(self.max_x)
-        print(self.min_x)
-        print(self.max_y)
-        print(self.min_y)
+        #print("These are min and max values")
+        #print(self.max_x)
+        #print(self.min_x)
+        #print(self.max_y)
+        #print(self.min_y)
 
- 
+        
        #LOOP
         #print("@" * 30)
-        print(set(self.list_of_tupes))
+        #print(set(self.list_of_tupes))
         #print("@" * 30)
         for x in range(self.min_x, self.max_x + 1):
             for y in range(self.min_y, self.max_y + 1):
                 symbol = (x, y)
+               # print("This is symbol ", symbol)
+                #print("This is symbol value", self.my_map.get(symbol, "?"))
+                #print("!" * 50)
                 #print("Loop symbol {0}  {1} ".format(symbol, self.my_map.get(symbol, "?")))
                 print(self.my_map.get(symbol, "?"), end=" ")
             print()			                    
@@ -129,19 +122,39 @@ class Overlord:
     def __init__(self, total_ticks):
         self.maps = {}
         self.zerg = {}
+        self.map_object = Map(self)
+        self.option = "None"
+        self.zerg_id = -1
+        self.zerg_to_map = {}
+        self.zerg_status = {}
 
         for _ in range(1):
-            z = Drone(self)
-            self.zerg[id(z)] = z
+            z = Drone(self, self.map_object)
+            self.zerg_id = id(z)
+            self.zerg[self.zerg_id] = z
 
     def add_map(self, map_id, summary):
         self.maps[map_id] = summary
+        #print("This is map_id ", map_id)
+        self.map_object.map_terrain[map_id] = []
 
     def action(self):
         act = randint(1, 3)
         if act == 0:
+            #print("This is self.maps.keys ", self.maps.keys())
             return 'RETURN {}'.format(choice(list(self.zerg.keys())))
         else:
-            return 'DEPLOY {} {}'.format(choice(list(self.zerg.keys())),
-                    choice(list(self.maps.keys())))
+            while(1):
+                self.option = choice(list(self.maps.keys()))
+                self.zerg_id = choice(list(self.zerg.keys()))
+                if self.zerg_id in self.zerg_to_map:
+                     if self.zerg_status[self.zerg_id] == "D":
+                         continue
+                     else:
+                         return 'DEPLOY {} {}'.format(self.zerg_id, self.option)
+                else:
+                    self.zerg_to_map[self.zerg_id] = self.option
+                    self.zerg_status[self.zerg_id] = "D"
+                    return 'DEPLOY {} {}'.format(self.zerg_id, self.option)
+  
 
