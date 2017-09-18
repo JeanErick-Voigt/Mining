@@ -4,6 +4,9 @@ from copy import copy
 from random import randint
 from sys import argv
 import timeout
+import logging
+
+logging.basicConfig(filename='Dave.log', filemode='w', level=logging.DEBUG)
 
 class Location:
     def __init__(self, x, y):
@@ -145,8 +148,6 @@ class Map:
         return None
 
     def move_to(self, l, d):
-        with open("Dave.log", "a") as f:
-            f.write("\tSomeone is moving from ({},{}) '{}'".format(l.x, l.y, d))
         if d == 'NORTH':
             new_l = (l.x, l.y + 1)
         elif d == 'SOUTH':
@@ -186,8 +187,6 @@ class Map:
                     self.mineral.remove(m)
         else:
             raise Exception('UNKNOWN TERRAIN')
-        with open("Dave.log", "a") as f:
-            f.write(" to ({},{}) into '{}'\n".format(l.x, l.y, temp))
 
     def update_tile(self, x, y):
         if (x,y) == self.landing_zone:
@@ -217,6 +216,7 @@ class Map:
                             self.mineral.remove(m)
 
                     if (z.location.x, z.location.y) in self.acid:
+                        logging.debug("{} has stepped in acid!".format(id(z.zerg)))
                         z.zerg.health -= 3 # Mulitple moves within a tick - necessary to account for here
                     if z.zerg.health <= 0:
                         self[z.location.x, z.location.y] = ' '
@@ -225,14 +225,13 @@ class Map:
                             self.zerg.remove(z)
                     
 
-
                     with timeout.within(1/z.zerg.moves):
-                        fuck_Dave = copy(z.location)
-                        fuck_Dave.x = id(z.location.x)
-                        fuck_Dave.y = id(z.location.y)
-                        d = z.zerg.action(fuck_Dave)
-                    with open("Dave.log", "a") as f:
-                        f.write("\t{} said '{}'\n".format(id(z), d))
+                        #fuck_Dave = copy(z.location)
+                        #fuck_Dave.x = id(z.location.x)
+                        #fuck_Dave.y = id(z.location.y)
+                        #d = z.zerg.action(fuck_Dave)
+                        d = z.zerg.action(z.location)
+                        logging.debug("{} said '{}'".format(id(z.zerg), d))
 # Reset location position so that the zerg cannot track or abuse it
                     z.location = Location(pos[0], pos[1])
                     self.update_location_adjacent(z.location)
@@ -241,8 +240,7 @@ class Map:
 
 
                     if z.zerg.health <= 0:
-                        with open("Dave.log", "a") as f:
-                            f.write("\t{} is ded...\n".format(id(z)))
+                        logging.debug("{} is ded...".format(id(z.zerg)))
                         break #zerg is dead move on to next
 
             except timeout.TimeoutError:

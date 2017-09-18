@@ -4,9 +4,12 @@ import timeout, os, time
 from map import Map
 from sys import argv
 from mining import Overlord
-#import zerg
+import logging
 
-TICKS = 100
+logging.basicConfig(filename='Dave.log', filemode='w', level=logging.DEBUG)
+
+
+TICKS = 20
 refresh_delay = 0.0 # number should represent seconds
 try:
     if len(argv) > 1 and argv[1].startswith("-refresh"):
@@ -40,11 +43,9 @@ for i in reversed(range(TICKS)):
         with timeout.within(1000):
             act = overlord.action(None)
     except timeout.TimeoutError:
-        with open("Dave.log", "a") as f:
-            f.write("{}: Overloard TIMEDOUT!\n".format(i))
+        logging.debug("{}: Overloard TIMEDOUT!".format(i))
         pass
-    with open("Dave.log", "a") as f:
-        f.write("{}: Overloard said '{}'\n".format(i, act))
+    logging.debug("{}: Overloard said '{}'".format(i, act))
 
     print(act)
     if act.startswith('DEPLOY'):
@@ -55,8 +56,7 @@ for i in reversed(range(TICKS)):
         if zerg_locations[z_id] is None:
             if maps[map_id].add_zerg(overlord.zerg[z_id], zerg_health[z_id]):
                 zerg_locations[z_id] = map_id
-                with open("Dave.log", "a") as f:
-                    f.write("\t{} was deployed!\n".format(z_id))
+                logging.debug("{} was deployed!".format(z_id))
 
     elif act.startswith('RETURN'):
         _, z_id = act.split()
@@ -69,8 +69,7 @@ for i in reversed(range(TICKS)):
                 zerg_locations[z_id] = None
                 zerg_health[z_id] = hp
                 mined += extracted
-            with open("Dave.log", "a") as f:
-                f.write("\t{} was returned! {} was extracted\n".format(z_id, extracted))
+            logging.debug("{} was returned! {} was extracted".format(z_id, extracted))
 
 
     for n in maps:
