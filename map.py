@@ -231,7 +231,7 @@ class Map:
                         #fuck_Dave.y = id(z.location.y)
                         #d = z.zerg.action(fuck_Dave)
                         d = z.zerg.action(z.location)
-                        logging.debug("{} said '{}'".format(id(z.zerg), d))
+                    logging.debug("{} said '{}'".format(id(z.zerg), d))
 # Reset location position so that the zerg cannot track or abuse it
                     z.location = Location(pos[0], pos[1])
                     self.update_location_adjacent(z.location)
@@ -244,9 +244,7 @@ class Map:
                         break #zerg is dead move on to next
 
             except timeout.TimeoutError:
-                with open("Dave.log", "a") as f:
-                    f.write("\tZerg TIMEDOUT!\n")
-                print(45 * "*", "TIMEOUT OCCURRED") #pass
+                logging.debug("{} TIMEDOUT".format(id(z.zerg)))
 
     def print_map(self):
         temp_map = self.data[:]

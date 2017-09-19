@@ -6,10 +6,10 @@ from sys import argv
 from mining import Overlord
 import logging
 
-logging.basicConfig(filename='Dave.log', filemode='w', level=logging.DEBUG)
+logging.basicConfig(filename='Dave.log', filemode='w', level=logging.ERROR)
 
 
-TICKS = 20
+TICKS = 100
 refresh_delay = 0.0 # number should represent seconds
 try:
     if len(argv) > 1 and argv[1].startswith("-refresh"):
@@ -74,9 +74,8 @@ for i in reversed(range(TICKS)):
 
     for n in maps:
         maps[n].tick()
+        print()
         print(maps[n])
-        with open("map.log", "a") as f:
-            f.write("{}\n===============================\n".format(maps[n]))
     time.sleep(refresh_delay)
 
 print("Total mined:", mined)
