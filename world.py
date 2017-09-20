@@ -1,11 +1,15 @@
-#!/usr/local/bin/python
+#!/usr/bin/env python3
 
 import timeout, os, time
 from map import Map
 from sys import argv
-import zerg_new
+from mining import Overlord
+import logging
 
-TICKS = 50
+logging.basicConfig(filename='Dave.log', filemode='w', level=logging.ERROR)
+
+
+TICKS = 100
 refresh_delay = 0.0 # number should represent seconds
 try:
     if len(argv) > 1 and argv[1].startswith("-refresh"):
@@ -13,7 +17,7 @@ try:
 except:
     pass # Any problem and the refresh delay will remain at 0
 
-overlord = zerg_new.Overlord(TICKS)
+overlord = Overlord(ticks=TICKS, refined_minerals=54)
 
 maps = dict()
 for n in range(3):
@@ -32,13 +36,16 @@ print(zerg_locations)
 
 mined = 0
 
-for _ in range(TICKS):
+for i in reversed(range(TICKS)):
+    os.system('cls' if os.name == 'nt' else 'clear')
     act = 'NONE'
     try:
         with timeout.within(1000):
-            act = overlord.action()
+            act = overlord.action(None)
     except timeout.TimeoutError:
+        logging.debug("{}: Overloard TIMEDOUT!".format(i))
         pass
+    logging.debug("{}: Overloard said '{}'".format(i, act))
 
     print(act)
     if act.startswith('DEPLOY'):
@@ -49,6 +56,7 @@ for _ in range(TICKS):
         if zerg_locations[z_id] is None:
             if maps[map_id].add_zerg(overlord.zerg[z_id], zerg_health[z_id]):
                 zerg_locations[z_id] = map_id
+                logging.debug("{} was deployed!".format(z_id))
 
     elif act.startswith('RETURN'):
         _, z_id = act.split()
@@ -61,12 +69,13 @@ for _ in range(TICKS):
                 zerg_locations[z_id] = None
                 zerg_health[z_id] = hp
                 mined += extracted
+            logging.debug("{} was returned! {} was extracted".format(z_id, extracted))
 
 
     for n in maps:
         maps[n].tick()
+        print()
         print(maps[n])
     time.sleep(refresh_delay)
-    os.system('cls' if os.name == 'nt' else 'clear')
 
 print("Total mined:", mined)

@@ -1,1 +1,2 @@
-from Mining.zerg_new import Overlord
+#__init__.py
+from mining.zerg_new import Overlord

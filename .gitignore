@@ -1,3 +1,8 @@
+<<<<<<< HEAD
+=======
+mining/
+
+>>>>>>> 7cf3d1e1bd168483c408d71a8af3d955f8516498
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
