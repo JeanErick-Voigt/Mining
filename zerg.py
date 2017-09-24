@@ -13,6 +13,7 @@ class Dashboard():
 
     
     def dashboard(self):
+        '''Dashboard function to print a visual presentation of map'''
         dashboard_output = ""
         #my_map = self.map_object.map_symbols
         map_to_draw = self.overlord.zerg_to_map[self.zerg_id]
@@ -64,6 +65,7 @@ class Drone:
      
     
     def action(self, context):
+        '''Controls the acionof the Drone class. Decides which direction to go'''
         self.move += 1
         my_map = Map(self.overlord)
         new = randint(0, 3)
@@ -122,6 +124,7 @@ class Miner(Drone):
         self.total_steps = 0
 
     def find_neighbors(self, context):
+       '''Finds neighbors of current tile in order to find shortest path to end point'''
        zerg_map_location = self.overlord.zerg_to_map[id(self)]
        symbol_map_list = self.overlord.map_object.map_symbols[zerg_map_location]
        
@@ -144,6 +147,8 @@ class Miner(Drone):
     
     
     def find_shortest_path(self, start, end, path = []):
+        '''Finds shortest path between the start and end. Using the path
+           as the list of directions to take'''
         path.append(start)
         if start == end:
             return path
@@ -161,6 +166,8 @@ class Miner(Drone):
         return shortest 
     
     def compare_move(self, context):
+        '''compares the current tile to the next_move tuple in order to return a
+           directional command of NORTH, SOUTH, EAST, or WEST or CENTER'''
         current = (context.x, context.y)
         if current == self.outbound_journey[0]:
            self.outbound_journey.pop(0)
@@ -190,6 +197,8 @@ class Miner(Drone):
         return statement   
                              
     def backwards_mine(self, context):
+        '''Enables the zerg to mine nearby minerals along their journey to
+           the end point.'''
         statement = " "
         if self.mined < self.capacity and context.north in "*":
             statement = 'NORTH'
@@ -228,6 +237,7 @@ class Miner(Drone):
 
     
     def update(self, context):
+        '''Updates the tiles in movement'''
         zerg_map_location = self.overlord.zerg_to_map[id(self)]
         if (context.x, context.y) not in self.overlord.map_object.map_terrain[zerg_map_location]:      
             self.overlord.map_object.map_terrain[zerg_map_location].append((context.x, context.y))
@@ -244,6 +254,7 @@ class Miner(Drone):
     
     
     def action(self, context):
+        '''returns the directional command to move to'''
         new_x = context.x
         new_y = context.y
         new_south = context.y - 1
@@ -297,6 +308,8 @@ class Miner(Drone):
         return(decision)   
     
     def steps():
+        '''Returns the total number of steps the zerg has taken since
+           starting the game'''
         return self.total_steps
 
     def get_init_cost():
@@ -323,6 +336,8 @@ class Scout(Drone):
         self.total_steps = 0
 
     def back_track(self, context):
+        '''Allows the zerg to step back to find its way home or 
+           discover new tiles'''
         zerg_map_location = self.overlord.zerg_to_map[id(self)]      
         next_move = ""
         statement = ''
@@ -393,6 +408,7 @@ class Scout(Drone):
         return statement
  
     def backwards_mine(self, context):
+        '''Allows the zerg to mine if it has finished searching a path'''
         statement = " "
         if self.mined < self.capacity and context.north in "*":
             statement = 'NORTH'
@@ -417,6 +433,7 @@ class Scout(Drone):
         
     
     def scouting(self, context):
+        '''determines how the zerg will scout'''
         zerg_map_location = self.overlord.zerg_to_map[id(self)]      
         decision = ""
              
@@ -441,7 +458,7 @@ class Scout(Drone):
                 decision = 'WEST'
                 return decision
 
-        if self.count < 50:
+        if self.count < 45:
             decision = self.backwards_mine(context)
             return decision
         else:
@@ -451,6 +468,7 @@ class Scout(Drone):
         return decision
             
     def update(self, context):
+        '''updates the list for the zerg movement'''
         zerg_map_location = self.overlord.zerg_to_map[id(self)]
         if (context.x, context.y) not in self.overlord.map_object.map_terrain[zerg_map_location]:      
             self.overlord.map_object.map_terrain[zerg_map_location].append((context.x, context.y))
@@ -467,7 +485,7 @@ class Scout(Drone):
         return decision
 
     def action(self, context):
-       
+       '''returns the directional command to be executed'''
        new_x = context.x
        new_y = context.y
        new_south = context.y - 1
@@ -492,9 +510,11 @@ class Scout(Drone):
 
 
     def steps():
+        '''returns the total number of steps the zerg has taken during game'''
         return self.total_steps
 
     def get_init_cost():
+        '''gives total cost it would take to produce this type of drone'''
         health  =  self.health * (1/10)
         moves = self.moves * 3
         capacity = self.capacity * (1/5)
@@ -537,10 +557,14 @@ class Overlord:
             self.zerg[id(scout_s)] = scout_s 
 
     def add_map(self, map_id, summary):
+        '''adds a map type to the list of maps'''
         self.maps[map_id] = summary
         self.scouted_map[map_id] = "SCOUT"
 
     def choose_drone_type(self, map_id):
+        '''Chooses drone based on type. If map has not been scouted yet then
+           scout must go.  Otherwise a miner will go.  However, 
+           if all maps scouted then either can go'''
         status_check = None
         for key, value in self.scouted_map.items():
             if value is "SCOUT":
@@ -556,12 +580,16 @@ class Overlord:
                 return("MINE")
 
     def update_zerg_status(self, key):
+        '''updates zerg status among the following options.  H, D or R.  These
+           stand for Home, Deployed or Redeploying, respectively'''
         for key, value in self.zerg.items():
             if key not in self.zerg_status:
                self.zerg_status[key] = "H"
     
 
     def choose_drone(self, zerg_type):
+        '''This function will actually choose the drone based on the type
+           it is said to choose'''
         for key, value in self.zerg.items():
             self.zerg_status.pop(-1, None)
             print(type(type(value).__name__))
@@ -598,9 +626,12 @@ class Overlord:
         return "NONE" 
            
     def dashboard(self):
+        ''' this function will display the dashboard of the current known map'''
         return self.dashboard.dashboard()
 
     def pickup_zerg(self):
+        '''If zerg turns on redeployed flag then he is ready to get picked up.
+           This function checks for that.'''
         pickup = None
         for key, value in self.zerg_status.items():
             if value is "R":
@@ -608,6 +639,10 @@ class Overlord:
                 return pickup
 
     def action(self, context):
+        '''This action decides whether to deploy, return or do nothing as the
+           overlord.  If he decides to return he will return the zerg 
+           requesting it.  If he decides to do deploy he will deploy based 
+           on type, what the map id needs and supply'''
         if self.turns == self.ticks:
            ans = input("do you want to see dashboard, y or no")
            if ans is "y":
