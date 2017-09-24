@@ -458,7 +458,7 @@ class Scout(Drone):
                 decision = 'WEST'
                 return decision
 
-        if self.count < 45:
+        if self.count < 30:
             decision = self.backwards_mine(context)
             return decision
         else:
