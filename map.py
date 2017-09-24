@@ -225,7 +225,7 @@ class Map:
                             self.zerg.remove(z)
                     
 
-                    with timeout.within(1/z.zerg.moves):
+                    with timeout.within(1000/z.zerg.moves):
                         #fuck_Dave = copy(z.location)
                         #fuck_Dave.x = id(z.location.x)
                         #fuck_Dave.y = id(z.location.y)

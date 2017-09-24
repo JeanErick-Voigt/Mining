@@ -77,5 +77,5 @@ for i in reversed(range(TICKS)):
         print()
         print(maps[n])
     time.sleep(refresh_delay)
-
+    print("Minerals currently mined ", mined)
 print("Total mined:", mined)
